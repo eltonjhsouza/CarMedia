@@ -41,7 +41,7 @@ public enum AnnexB {
         var units: [Data] = []
         var i = 0
         while i < b.count {
-            guard isStart(i) { i += 1; continue }
+            guard isStart(i) else { i += 1; continue }
             var j = i + 3
             if b[i + 2] == 0 { j = i + 4 }        // 4-byte start code
             var k = j
