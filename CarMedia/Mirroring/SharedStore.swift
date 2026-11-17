@@ -26,7 +26,10 @@ public enum SharedStore {
     }
 
     public static var receiverHost: String { defaults.string(forKey: Key.receiverHost) ?? "" }
-    public static var receiverPort: Int { defaults.integer(forKey: Key.receiverPort) }
+    public static var receiverPort: Int {
+        let p = defaults.integer(forKey: Key.receiverPort)
+        return p == 0 ? 5555 : p
+    }
 
     public static var status: String { defaults.string(forKey: Key.status) ?? "idle" }
     public static var frames: Int { defaults.integer(forKey: Key.frames) }

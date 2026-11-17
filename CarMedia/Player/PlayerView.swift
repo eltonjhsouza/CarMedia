@@ -7,7 +7,6 @@ struct PlayerView: View {
     @StateObject private var model = PlayerModel()
     @StateObject private var carLink = CarPlayLink.shared
     @State private var urlString = PlayerModel.testMP4
-    @State private var showCarAction = false
 
     var body: some View {
         NavigationStack {

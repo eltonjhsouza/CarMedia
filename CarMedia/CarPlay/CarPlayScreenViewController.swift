@@ -93,7 +93,7 @@ final class CarPlayScreenViewController: UIViewController, WKScriptMessageHandle
     private func applyGate() {
         guard FeatureFlags.parkedGate.isOn else {
             player?.play()
-            playerHost.view.isHidden = false
+            applyVideoVisibility()
             drivingBanner.isHidden = true
             return
         }

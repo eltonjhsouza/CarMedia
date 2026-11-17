@@ -24,6 +24,14 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Usamos velocidade da localização apenas para saber se o carro está se movendo, para ocultar o vídeo na tela do carro enquanto dirige. Nada é armazenado ou enviado.</string>
 
+	<!-- App Transport Security: este app é um navegador experimental; páginas
+	     http:// arbitrárias são decisão do usuário, não conteúdo do app. -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
+
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>tel</string>
