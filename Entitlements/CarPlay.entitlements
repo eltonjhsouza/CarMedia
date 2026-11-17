@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- OPT-IN. Only valid after Apple grants the entitlements to YOUR
+	     developer account (https://developer.apple.com/contact/carplay/).
+	     Both must be present: with carplay-video alone the app installs and
+	     runs, and simply never appears on the head unit — audio is required
+	     alongside (lesson from cafari-lite). CI selects this file via
+	     CARPLAY_ENTITLEMENTS=true ONLY when CARMEDIA_CARPLAY_APPROVED=true.
+	     Never combine with other CarPlay category entitlements that the
+	     account does not hold. -->
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>group.dev.carmedia.app</string>
+	</array>
+	<key>com.apple.developer.carplay-audio</key>
+	<true/>
+	<key>com.apple.developer.carplay-video</key>
+	<true/>
+</dict>
+</plist>

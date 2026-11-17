@@ -1,0 +1,13 @@
+.DS_Store
+*.xccodeproj/
+DerivedData/
+build/
+CarMedia.xcodeproj/
+TestResults.xcresult/
+CarMedia.xcarchive/
+ipa/
+*.ipa
+Local.xcconfig
+cert.p12
+profile.mobileprovision
+tools/receiver/stream.h264

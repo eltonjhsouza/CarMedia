@@ -1,0 +1,78 @@
+# CarMedia CI — compila e testa no runner macOS; NENHUM Mac local é necessário.
+# O desenvolvimento acontece no Windows (VS Code + Codex + Git); este workflow
+# gera o projeto com XcodeGen, compila sem assinatura e roda os testes.
+name: build-test
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    # macos-26 runners trazem o Xcode 27. Ajuste a label quando a imagem
+    # macos-26 for publicada; macos-latest continua compilando o código.
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Toolchain
+        run: |
+          xcodebuild -version
+          sw_vers
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate project
+        run: xcodegen generate
+
+      # Compilação SEM assinatura — verifica o código, NÃO é um IPA instalável.
+      - name: Build (unsigned, simulator)
+        run: |
+          xcodebuild build \
+            -project CarMedia.xcodeproj \
+            -scheme CarMedia \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            | tail -40
+
+      - name: Resolve simulator
+        id: sim
+        run: |
+          UDID=$(xcrun simctl list devices available -j | python3 -c 'import json,sys;d=json.load(sys.stdin);
+          dev=[x for r,v in d["devices"].items() if "iOS" in r for x in v if x["isAvailable"] and x["name"].startswith("iPhone")];
+          print(dev[-1]["udid"] if dev else "")')
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+          [ -n "$UDID" ] || { echo "No iPhone simulator available"; exit 1; }
+
+      - name: Test (Swift Testing)
+        run: |
+          xcodebuild test \
+            -project CarMedia.xcodeproj \
+            -scheme CarMedia \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            CODE_SIGNING_ALLOWED=NO \
+            -resultBundlePath TestResults.xcresult
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ github.sha }}
+          path: |
+            TestResults.xcresult
+            build/Build/Products/Debug-iphonesimulator
+          if-no-files-found: warn
+          retention-days: 7
+
+  plist-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate plists & entitlements
+        run: python3 tools/check_plists.py

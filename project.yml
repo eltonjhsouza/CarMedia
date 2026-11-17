@@ -1,0 +1,75 @@
+# XcodeGen spec — the .xcodeproj is generated in CI (macOS runner), never committed.
+# This is what allows development to happen entirely from Windows.
+name: CarMedia
+options:
+  bundleIdPrefix: dev.carmedia
+  deploymentTarget:
+    iOS: "18.0"          # floor for compiling; CarPlay *video* features light up on 26.4+
+  createIntermediateGroups: true
+  generateEmptyDirectories: false
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: minimal
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    ENABLE_USER_SCRIPT_SANDBOXING: NO
+targets:
+  CarMedia:
+    type: application
+    platform: iOS
+    sources:
+      - path: CarMedia
+        excludes:
+          - "Resources/Info.plist"   # used via INFOPLIST_FILE, not as a resource
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.carmedia.app
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: CarMedia/Resources/Info.plist
+        # Default: NO CarPlay entitlements — clone builds phone-only for anyone.
+        # CI/release can override to Entitlements/CarPlay.entitlements when Apple
+        # has granted the account com.apple.developer.carplay-audio + carplay-video.
+        CODE_SIGN_ENTITLEMENTS: Entitlements/CarMedia.entitlements
+    dependencies:
+      - target: CarMediaBroadcast
+        embed: true
+  CarMediaBroadcast:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: CarMediaBroadcast
+        excludes:
+          - "Info.plist"
+      # Shared pure helper compiled into both targets (unit-tested app-side).
+      - path: CarMedia/Core/AnnexB.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.carmedia.app.broadcast
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: CarMediaBroadcast/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Entitlements/CarMediaBroadcast.entitlements
+  CarMediaTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: CarMediaTests
+    dependencies:
+      - target: CarMedia
+schemes:
+  CarMedia:
+    build:
+      targets:
+        CarMedia: all
+        CarMediaTests: [test]
+    run:
+      config: Debug
+      environment:
+        # Experimental surfaces stay OFF until validated on hardware.
+        CARMEDIA_FLAG_CARPLAY_SCENE: "1"
+        CARMEDIA_FLAG_CARPLAY_VIDEO: "0"
+        CARMEDIA_FLAG_MIRRORING: "0"
+    test:
+      config: Debug
+      targets:
+        - CarMediaTests

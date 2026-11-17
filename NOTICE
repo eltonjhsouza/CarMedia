@@ -1,0 +1,22 @@
+# NOTICE
+
+CarMedia is licensed under the MIT License (see LICENSE).
+
+This project adapts techniques and some code from:
+
+- **Cafari Lite** — https://github.com/rPlayAI/cafari-lite — MIT License,
+  Copyright (c) rPlayAI. Used parts: the CarPlay *window scene* mechanism
+  (role string "UIWindowSceneSessionRoleCarPlay", Info.plist scene manifest,
+  CarPlaySceneDelegate shape) and the location-speed parked gate (CarGate).
+  Comments in the affected files carry attribution. Cafari Lite itself is not
+  a dependency: CarMedia is an independent implementation.
+
+- **Cafari** (https://github.com/rPlayAI/cafari-public) and
+  **rPlayFling** (https://github.com/rPlayAI/rPlayFling-public) were used as
+  *documentation and behavior references only*; their source is not public
+  and no code was copied from them.
+
+CarPlay is a trademark of Apple Inc. This project is not affiliated with or
+endorsed by Apple, Fiat, rPlayAI, YouTube, Pluto TV, Twitch, Netflix, Prime
+Video or Disney+. Streaming services remain subject to their own terms; the
+in-app browser makes no DRM playback promises.

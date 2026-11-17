@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- DEFAULT entitlements: no CarPlay. A clone with any (even free) Apple
+	     ID builds, signs and runs phone-only. -->
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>group.dev.carmedia.app</string>
+	</array>
+</dict>
+</plist>
