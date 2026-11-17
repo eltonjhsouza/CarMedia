@@ -40,7 +40,7 @@ public final class CarPlayLink: ObservableObject {
     public static let windowRole = UISceneSession.Role(rawValue: "UIWindowSceneSessionRoleCarPlay")
 
     @Published public private(set) var isConnected = false
-    @Published public private(set) var lastHandoff: String?
+    @Published public var lastHandoff: String?
     /// Set by CarPlaySceneDelegate when the car window is live.
     weak var carScreen: CarPlayScreenViewController?
 

@@ -31,9 +31,8 @@ final class CarPlayScreenViewController: UIViewController, WKScriptMessageHandle
         view.backgroundColor = .black
         webView.frame = view.bounds
         webView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        addChild(webView)
+        // WKWebView is a view, not a VC: plain subview, sized by the parent.
         view.addSubview(webView)
-        webView.didMove(toParent: self)
         loadIndex()
 
         // Video surface starts hidden; shown only when something plays.
@@ -70,10 +69,11 @@ final class CarPlayScreenViewController: UIViewController, WKScriptMessageHandle
         EventLog.shared.record(.carplay, "car play \(LogScrubber.scrubURL(url.absoluteString))")
         let item = AVPlayerItem(url: url)
         let player = AVPlayer(playerItem: item)
+        player.allowsExternalPlayback = false   // we ARE the external screen here
         self.player = player
         let vc = AVPlayerViewController()
         vc.player = player
-        vc.allowsExternalPlayback = false   // we ARE the external screen here
+        vc.updatesNowPlayingInfoCenter = false
         playerHost.children.forEach { $0.willMove(toParent: nil); $0.removeFromParent() }
         playerHost.addChild(vc)
         vc.view.frame = playerHost.view.bounds

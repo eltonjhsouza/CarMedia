@@ -136,7 +136,6 @@ struct VideoContainer: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> AVPlayerViewController {
         let vc = AVPlayerViewController()
         vc.player = model.player
-        vc.allowsExternalPlayback = true            // official video output route
         vc.updatesNowPlayingInfoCenter = false
         if #available(iOS 18.0, *) { vc.entersFullScreenWhenPlaybackBegins = false }
         PlayerUICoordinator.shared.controller = vc

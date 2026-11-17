@@ -11,7 +11,7 @@ public final class BrowserModel: NSObject, ObservableObject, WKNavigationDelegat
     @Published public private(set) var canGoBack = false
     @Published public private(set) var canGoForward = false
     @Published public private(set) var isLoading = false
-    @Published public private(set) var loadError: BrowserError?
+    @Published public var loadError: BrowserError?
     /// Bumped after a visit is recorded so sheets (favorites/history) refresh.
     @Published public private(set) var visitCounter = 0
 
@@ -122,13 +122,12 @@ public final class BrowserModel: NSObject, ObservableObject, WKNavigationDelegat
         isLoading = false
         let ns = error as NSError
         if ns.domain == NSURLErrorDomain && ns.code == NSURLErrorCancelled { return }
-        let kind: BrowserError.Kind = (ns.domain == NSURLErrorDomain &&
+        let unreachable = ns.domain == NSURLErrorDomain &&
             [NSURLErrorCannotFindHost, NSURLErrorCannotConnectToHost, NSURLErrorNotConnectedToInternet,
-             NSURLErrorNetworkConnectionLost].contains(ns.code))
-            ? .unavailable(ns.localizedDescription)
-            : .failed(ns.localizedDescription)
-        loadError = BrowserError(kind: kind)
-        EventLog.shared.record(.browser, "load error: \(kind == .unavailable(ns.localizedDescription) ? "unreachable" : "failed") \(ns.localizedDescription)")
+             NSURLErrorNetworkConnectionLost].contains(ns.code)
+        loadError = BrowserError(kind: unreachable ? .unavailable(ns.localizedDescription)
+                                                   : .failed(ns.localizedDescription))
+        EventLog.shared.record(.browser, "\(unreachable ? "unreachable" : "failed"): \(ns.localizedDescription)")
     }
 
     // Open-target blank windows (window.open) load in the same view.

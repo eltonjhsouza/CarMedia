@@ -34,7 +34,8 @@ public final class PlayerModel: NSObject, ObservableObject {
 
     override public init() {
         player = AVPlayer()
-        routePublisher = NSNotificationCenter.default.addObserver(
+        player.allowsExternalPlayback = true   // official property on AVPlayer
+        routePublisher = NotificationCenter.default.addObserver(
             forName: AVAudioSession.routeChangeNotification, object: nil, queue: .main
         ) { [weak self] note in
             Task { @MainActor in self?.handleRouteChange(note) }
@@ -46,7 +47,7 @@ public final class PlayerModel: NSObject, ObservableObject {
     }
 
     deinit {
-        NSNotificationCenter.default.removeObserver(routePublisher)
+        NotificationCenter.default.removeObserver(routePublisher)
     }
 
     // MARK: - Controls
@@ -76,7 +77,7 @@ public final class PlayerModel: NSObject, ObservableObject {
         item.addObserver(self, forKeyPath: "presentationSize", options: [.new], context: nil)
         NotificationCenter.default.addObserver(
             self, selector: #selector(itemFailed(_:)),
-            name: AVPlayerItem.failedToLoadResource, object: item)
+            name: Notification.Name("AVPlayerItemFailedToLoadResourceNotification"), object: item)
         NotificationCenter.default.addObserver(
             self, selector: #selector(playbackEnded(_:)),
             name: AVPlayerItem.didPlayToEndTimeNotification, object: item)
@@ -123,7 +124,7 @@ public final class PlayerModel: NSObject, ObservableObject {
                     self.lastError = desc
                     self.EventLog_record("item failed: \(desc)")
                 } else if item.status == .readyToPlay {
-                    self.EventLog_record("ready to play, external=\(self.player.currentItem?.isExternalPlaybackActive == true)")
+                    self.EventLog_record("ready to play, externalRoute=\(self.hasRemoteVideoRoute)")
                 }
             }
             if keyPath == "presentationSize" {
@@ -170,12 +171,19 @@ public final class PlayerModel: NSObject, ObservableObject {
         let outputs = AVAudioSession.sharedInstance().currentRoute.outputs
         let names = outputs.map { "\($0.portName) (\($0.carMediaPortLabel))" }
         routeSummary = names.isEmpty ? "Saída: alto-falante do iPhone" : "Saída: " + names.joined(separator: " + ")
-        supportsExternalPlayback = player.currentItem?.isExternalPlaybackActive ?? false
+        supportsExternalPlayback = hasRemoteVideoRoute
     }
 
-    public var externalPlaybackActive: Bool {
-        player.currentItem?.isExternalPlaybackActive ?? false
+    /// Public, honest signal: a remote route (AirPlay / car) is active.
+    /// (AVPlayerItem.isExternalPlaybackActive does not exist; the route list does.)
+    public var hasRemoteVideoRoute: Bool {
+        AVAudioSession.sharedInstance().currentRoute.outputs.contains {
+            $0.portType == AVAudioSession.Port.airPlay
+                || $0.portType.rawValue.hasPrefix("Car")
+        }
     }
+
+    public var externalPlaybackActive: Bool { hasRemoteVideoRoute }
 }
 
 extension AVAudioSession.RouteChangeReason {
@@ -194,20 +202,20 @@ extension AVAudioSession.RouteChangeReason {
     }
 }
 
-extension AVAudioSessionPortDescription {
-    /// Human-friendly port type label without depending on enum bridging names.
+extension AVAudioSession.Port {
+    /// Human-friendly port type label. Port is a string-backed struct; car
+    /// types match by rawValue so no version-gated enum member is needed.
     var carMediaPortLabel: String {
-        switch portType {
-        case "builtInSpeaker": return "speaker"
-        case "airPlay": return "airplay"
-        case "carAudio", "com.apple.carplay.audio": return "car-audio"
-        case "BluetoothA2DP": return "bt-a2dp"
-        case "BluetoothLE": return "bt-le"
-        case "BluetoothHFP": return "bt-hfp"
-        case "USBAudio": return "usb"
-        case "headphones": return "headphones"
-        case "builtInReceiver": return "receiver"
-        default: return portType
+        if rawValue.hasPrefix("Car") { return "car" }
+        switch self {
+        case .builtInSpeaker: return "speaker"
+        case .bluetoothA2DP: return "bt-a2dp"
+        case .bluetoothLE: return "bt-le"
+        case .bluetoothHFP: return "bt-hfp"
+        case .airPlay: return "airplay"
+        case .headphones: return "headphones"
+        case .builtInReceiver: return "receiver"
+        default: return rawValue
         }
     }
 }
