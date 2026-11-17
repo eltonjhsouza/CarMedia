@@ -169,7 +169,7 @@ public final class PlayerModel: NSObject, ObservableObject {
 
     private func updateRouteSummary() {
         let outputs = AVAudioSession.sharedInstance().currentRoute.outputs
-        let names = outputs.map { "\($0.portName) (\($0.carMediaPortLabel))" }
+        let names = outputs.map { "\($0.portName) (\($0.portType.carMediaPortLabel))" }
         routeSummary = names.isEmpty ? "Saída: alto-falante do iPhone" : "Saída: " + names.joined(separator: " + ")
         supportsExternalPlayback = hasRemoteVideoRoute
     }

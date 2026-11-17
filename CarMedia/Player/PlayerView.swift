@@ -62,8 +62,9 @@ struct PlayerView: View {
 
     private var statusLabel: String {
         switch model.status {
-        case .unknown: return "…"; case .loading: return "carregando"
-        case .readyToPlay: return "pronto"; case .failed: return "erro"
+        case .unknown: return "…"
+        case .readyToPlay: return "pronto"
+        case .failed: return "erro"
         @unknown default: return "?"
         }
     }
@@ -159,8 +160,7 @@ extension PlayerModel {
     func toggleFullScreen() {
         guard let host = PlayerUICoordinator.shared.controller?.view.window?.rootViewController?.topMost else { return }
         let full = AVPlayerViewController()
-        full.player = player
-        full.allowsExternalPlayback = true
+        full.player = player   // same AVPlayer: allowsExternalPlayback was set on it
         full.modalPresentationStyle = .fullScreen
         host.present(full, animated: true)
         EventLog.shared.record(.player, "fullscreen presented")
@@ -169,7 +169,7 @@ extension PlayerModel {
 
 extension UIViewController {
     var topMost: UIViewController {
-        if let presented { return presented.topMost }
+        if let presented = presentedViewController { return presented.topMost }
         if let nav = self as? UINavigationController, let visible = nav.visibleViewController { return visible.topMost }
         if let tab = self as? UITabBarController, let selected = tab.selectedViewController { return selected.topMost }
         return self
