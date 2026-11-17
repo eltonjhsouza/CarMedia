@@ -121,14 +121,14 @@ public final class SampleHandler: RPBroadcastSampleHandler {
             setStatus("error", "encoder indisponível (\(status))")
             return
         }
-        VTSessionSetProperty(session, kVTCompressionPropertyKey_AverageBitRate,
-                             NSNumber(value: 2_000_000) as CFTypeRef)
-        VTSessionSetProperty(session, kVTCompressionPropertyKey_MaxKeyFrameIntervalDuration,
-                             NSNumber(value: 2.0) as CFTypeRef)
-        VTSessionSetProperty(session, kVTCompressionPropertyKey_AllowTemporalCompression,
-                             kCFBooleanFalse)
-        VTSessionSetProperty(session, kVTCompressionPropertyKey_ExpectedFrameRate,
-                             NSNumber(value: 30) as CFTypeRef)
+        VTSessionSetProperty(session, key: kVTCompressionPropertyKey_AverageBitRate,
+                             value: NSNumber(value: 2_000_000) as CFTypeRef)
+        VTSessionSetProperty(session, key: kVTCompressionPropertyKey_MaxKeyFrameIntervalDuration,
+                             value: NSNumber(value: 2.0) as CFTypeRef)
+        VTSessionSetProperty(session, key: kVTCompressionPropertyKey_AllowTemporalCompression,
+                             value: kCFBooleanFalse)
+        VTSessionSetProperty(session, key: kVTCompressionPropertyKey_ExpectedFrameRate,
+                             value: NSNumber(value: 30) as CFTypeRef)
         encoder = session
         VTCompressionSessionPrepareToEncodeFrames(session)
     }
