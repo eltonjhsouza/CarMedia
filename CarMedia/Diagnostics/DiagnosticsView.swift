@@ -113,7 +113,7 @@ struct DiagnosticsView: View {
             VStack(alignment: .leading, spacing: 3) {
                 ForEach(log.reversed().prefix(200)) { e in
                     HStack(alignment: .top) {
-                        Text(e.date, style: .time).font(.caption2.monospaced)
+                        Text(e.date, style: .time).font(.caption2.monospaced())
                         Text("[\(e.category.rawValue)]").font(.caption2).foregroundStyle(.secondary)
                         Text(LogScrubber.scrub(e.message)).font(.caption2)
                     }
