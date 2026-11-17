@@ -36,20 +36,18 @@ public final class SampleHandler: RPBroadcastSampleHandler {
 
     // MARK: - Lifecycle
 
-    override public func broadcastStarted(withPublishingConfiguration publishingConfiguration: RPBroadcastConfiguration,
-                                          completionHandler: @escaping (NSError?) -> Void) {
+    override public func broadcastStarted(withSetupInfo setupInfo: [String: NSObject]?) {
         let host = shared?.string(forKey: "mirror.receiverHost") ?? ""
         let port = shared?.integer(forKey: "mirror.receiverPort") ?? 0
         guard !host.isEmpty, port > 0, port < 65536 else {
             setStatus("error", "defina o receptor no app CarMedia antes de iniciar")
-            completionHandler(NSError(domain: "CarMediaBroadcast", code: 1,
+            finishBroadcastWithError(NSError(domain: "CarMediaBroadcast", code: 1,
                               userInfo: [NSLocalizedDescriptionKey:
                                 "Defina IP e porta do receptor no app CarMedia antes de iniciar a transmissão."]))
             return
         }
         setStatus("starting", "conectando à porta \(port)")
         startTCP(host: host, port: port)
-        completionHandler(nil)
     }
 
     override public func broadcastFinished() {
