@@ -109,12 +109,12 @@ public final class BrowserModel: NSObject, ObservableObject, WKNavigationDelegat
         EventLog.shared.record(.browser, "loaded \(LogScrubber.scrubURL(webView.url?.absoluteString ?? "?"))")
     }
 
-    public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, with error: Error) {
+    public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         finishFailure(error)
     }
 
     public func webView(_ webView: WKWebView,
-                        didFailProvisionalNavigation navigation: WKNavigation!, with error: Error) {
+                        didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
         finishFailure(error)
     }
 

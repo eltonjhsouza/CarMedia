@@ -168,7 +168,7 @@ public final class PlayerModel: NSObject, ObservableObject {
 
     private func updateRouteSummary() {
         let outputs = AVAudioSession.sharedInstance().currentRoute.outputs
-        let names = outputs.map { "\($0.portName) (\($0.portType.label))" }
+        let names = outputs.map { "\($0.portName) (\($0.carMediaPortLabel))" }
         routeSummary = names.isEmpty ? "Saída: alto-falante do iPhone" : "Saída: " + names.joined(separator: " + ")
         supportsExternalPlayback = player.currentItem?.isExternalPlaybackActive ?? false
     }
@@ -194,19 +194,20 @@ extension AVAudioSession.RouteChangeReason {
     }
 }
 
-extension AVAudioSessionPortDescription.PortType {
-    var label: String {
-        switch self {
-        case .builtInSpeaker: return "speaker"
-        case .bluetoothA2DP: return "bt-a2dp"
-        case .bluetoothLE: return "bt-le"
-        case .bluetoothHFP: return "bt-hfp"
-        case .airPlay: return "airplay"
-        case .carAudio: return "car-audio"
-        case .usbAudio: return "usb"
-        case .headphones: return "headphones"
-        case .builtInReceiver: return "receiver"
-        default: return rawValue
+extension AVAudioSessionPortDescription {
+    /// Human-friendly port type label without depending on enum bridging names.
+    var carMediaPortLabel: String {
+        switch portType {
+        case "builtInSpeaker": return "speaker"
+        case "airPlay": return "airplay"
+        case "carAudio", "com.apple.carplay.audio": return "car-audio"
+        case "BluetoothA2DP": return "bt-a2dp"
+        case "BluetoothLE": return "bt-le"
+        case "BluetoothHFP": return "bt-hfp"
+        case "USBAudio": return "usb"
+        case "headphones": return "headphones"
+        case "builtInReceiver": return "receiver"
+        default: return portType
         }
     }
 }

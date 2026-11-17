@@ -158,8 +158,7 @@ extension PlayerModel {
     /// Uses only long-stable APIs (modal .fullScreen presentation), so it
     /// works regardless of AVKit's newer programmatic-fullscreen additions.
     func toggleFullScreen() {
-        guard let host = PlayerUICoordinator.shared.controller?.view.window?.rootViewController?.
-                topMost else { return }
+        guard let host = PlayerUICoordinator.shared.controller?.view.window?.rootViewController?.topMost else { return }
         let full = AVPlayerViewController()
         full.player = player
         full.allowsExternalPlayback = true

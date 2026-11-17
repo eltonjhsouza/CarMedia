@@ -45,6 +45,7 @@ public enum EntitlementProbe {
             }
         }
         return Result(entitlements: out, source: .mobileProvision)
+        #endif
     }
 
     /// The provisioning profile is PKCS#7; the embedded plist XML can be
