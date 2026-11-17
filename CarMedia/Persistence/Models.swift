@@ -5,7 +5,7 @@ import SwiftData
 
 @Model
 public final class Favorite {
-    @Attribute(.unique) public var url: URL
+    public var url: URL
     public var title: String
     public var addedAt: Date
     public init(url: URL, title: String, addedAt: Date = .now) {
@@ -32,7 +32,7 @@ public enum Persistence {
         do { return try ModelContainer(for: schema, configurations: [config]) }
         catch {
             EventLog.shared.record(.app, "SwiftData init failed: \(error.localizedDescription)")
-            return try! ModelContainer(for: schema, configurations: [ModelConfiguration(inMemory: true)])
+            return try! ModelContainer(for: schema, configurations: [ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)])
         }
     }()
 

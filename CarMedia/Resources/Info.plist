@@ -24,6 +24,13 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Usamos velocidade da localização apenas para saber se o carro está se movendo, para ocultar o vídeo na tela do carro enquanto dirige. Nada é armazenado ou enviado.</string>
 
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>tel</string>
+		<string>mailto</string>
+		<string>sms</string>
+	</array>
+
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>

@@ -38,12 +38,12 @@ public final class BrowserModel: NSObject, ObservableObject, WKNavigationDelegat
             p.preferredContentMode = .mobile
             return p
         }()
+        config.applicationNameForUserAgent = "CarMedia"
         webView = WKWebView(frame: .zero, configuration: config)
         super.init()
         webView.navigationDelegate = self
         webView.uiDelegate = self
         webView.allowsBackForwardNavigationGestures = true
-        config.applicationNameForUserAgent = "CarMedia"
     }
 
     // MARK: - Commands

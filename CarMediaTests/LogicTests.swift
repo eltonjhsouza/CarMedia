@@ -35,10 +35,10 @@ import Testing
     @Test func envOverrideWins() {
         // (env is process-wide; test by setting is not possible after launch,
         // so assert the default contract instead)
-        #expect(FeatureFlags.carPlayVideo.default == false)
-        #expect(FeatureFlags.mirroring.default == false)
-        #expect(FeatureFlags.parkedGate.default == true)
-        #expect(FeatureFlags.carPlayScene.default == true)
+        #expect(FeatureFlags.carPlayVideo.defaultValue == false)
+        #expect(FeatureFlags.mirroring.defaultValue == false)
+        #expect(FeatureFlags.parkedGate.defaultValue == true)
+        #expect(FeatureFlags.carPlayScene.defaultValue == true)
     }
 }
 

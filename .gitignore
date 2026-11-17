@@ -1,5 +1,5 @@
 .DS_Store
-*.xccodeproj/
+
 DerivedData/
 build/
 CarMedia.xcodeproj/

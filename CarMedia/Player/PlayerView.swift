@@ -13,7 +13,8 @@ struct PlayerView: View {
         NavigationStack {
             VStack(spacing: 8) {
                 VideoContainer(model: model)
-                    .frame(aspectRatio: 16.0/9.0)
+                    .frame(maxWidth: .infinity)
+                    .aspectRatio(16.0/9.0, contentMode: .fit)
                     .background(.black)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
 
@@ -154,17 +155,27 @@ final class PlayerUICoordinator {
 }
 
 extension PlayerModel {
+    /// Fullscreen via a modal AVPlayerViewController sharing the same player.
+    /// Uses only long-stable APIs (modal .fullScreen presentation), so it
+    /// works regardless of AVKit's newer programmatic-fullscreen additions.
     func toggleFullScreen() {
-        guard let c = PlayerUICoordinator.shared.controller else { return }
-        if #available(iOS 18.0, *) {
-            if c.isFullScreen {
-                c.exitsFullScreen(animated: true, completion: nil)
-            } else {
-                c.entersFullScreen(animated: true, completion: nil)
-            }
-        } else {
-            EventLog.shared.record(.player, "fullscreen toggle needs iOS 18+ APIs")
-        }
+        guard let host = PlayerUICoordinator.shared.controller?.view.window?.rootViewController?.
+                topMost else { return }
+        let full = AVPlayerViewController()
+        full.player = player
+        full.allowsExternalPlayback = true
+        full.modalPresentationStyle = .fullScreen
+        host.present(full, animated: true)
+        EventLog.shared.record(.player, "fullscreen presented")
+    }
+}
+
+extension UIViewController {
+    var topMost: UIViewController {
+        if let presented { return presented.topMost }
+        if let nav = self as? UINavigationController, let visible = nav.visibleViewController { return visible.topMost }
+        if let tab = self as? UITabBarController, let selected = tab.selectedViewController { return selected.topMost }
+        return self
     }
 }
 
@@ -173,9 +184,7 @@ extension PlayerModel {
 struct RoutePickerButton: UIViewRepresentable {
     func makeUIView(context: Context) -> AVRoutePickerView {
         let v = AVRoutePickerView()
-        if #available(iOS 18.0, *) {
-            v.preferredRouteType = .video   // prioriza destinos de vídeo
-        }
+        v.prioritizesVideoDevices = true   // iOS 13+: destinos com vídeo primeiro
         v.delegate = context.coordinator
         return v
     }

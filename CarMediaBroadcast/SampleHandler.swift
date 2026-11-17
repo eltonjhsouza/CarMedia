@@ -41,7 +41,7 @@ public final class SampleHandler: RPBroadcastSampleHandler {
         let port = shared?.integer(forKey: "mirror.receiverPort") ?? 0
         guard !host.isEmpty, port > 0, port < 65536 else {
             setStatus("error", "defina o receptor no app CarMedia antes de iniciar")
-            showError(NSError(domain: "CarMediaBroadcast", code: 1,
+            broadcastFailedWithError(NSError(domain: "CarMediaBroadcast", code: 1,
                               userInfo: [NSLocalizedDescriptionKey:
                                 "Defina IP e porta do receptor no app CarMedia antes de iniciar a transmissão."]))
             return

@@ -14,17 +14,17 @@
 import Foundation
 
 enum FeatureFlags {
-    static let carPlayScene = Flag(name: "carplayScene", env: "CARMEDIA_FLAG_CARPLAY_SCENE", default: true)
-    static let parkedGate   = Flag(name: "parkedGate",   env: "CARMEDIA_FLAG_PARKED_GATE",   default: true)
-    static let carPlayVideo = Flag(name: "carplayVideo", env: "CARMEDIA_FLAG_CARPLAY_VIDEO", default: false)
-    static let mirroring    = Flag(name: "mirroring",    env: "CARMEDIA_FLAG_MIRRORING",     default: false)
+    static let carPlayScene = Flag(name: "carplayScene", env: "CARMEDIA_FLAG_CARPLAY_SCENE", defaultValue: true)
+    static let parkedGate   = Flag(name: "parkedGate",   env: "CARMEDIA_FLAG_PARKED_GATE",   defaultValue: true)
+    static let carPlayVideo = Flag(name: "carplayVideo", env: "CARMEDIA_FLAG_CARPLAY_VIDEO", defaultValue: false)
+    static let mirroring    = Flag(name: "mirroring",    env: "CARMEDIA_FLAG_MIRRORING",     defaultValue: false)
 
     static var all: [Flag] { [carPlayScene, parkedGate, carPlayVideo, mirroring] }
 
     struct Flag: Identifiable {
         let name: String
         let env: String
-        let `default`: Bool
+        let defaultValue: Bool
         var id: String { name }
         var title: String {
             switch name {
@@ -42,7 +42,7 @@ enum FeatureFlags {
             if UserDefaults.standard.object(forKey: key) != nil {
                 return UserDefaults.standard.bool(forKey: key)
             }
-            return `default`
+            return defaultValue
         }
 
         func set(_ value: Bool) {
