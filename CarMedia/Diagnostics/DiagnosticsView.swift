@@ -10,57 +10,17 @@ struct DiagnosticsView: View {
     @State private var log: [EventLog.Entry] = []
     @State private var route: String = ""
 
-    private let columns = [GridItem(.adaptive(minimum: 150), alignment: .leading)]
-
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    group("Aparelho") {
-                        row("iOS", DeviceInfo.systemVersion)
-                        row("Modelo", DeviceInfo.machineIdentifier)
-                        row("App", DeviceInfo.appVersion)
-                        row("Bundle", DeviceInfo.bundleID)
-                    }
-                    group("CarPlay") {
-                        row("Cena do carro", CarPlayLink.shared.isConnected ? "conectada" : "não conectada")
-                        row("Entitlement CarPlay", entitlementsSummary)
-                        row("Flag vídeo", flag(FeatureFlags.carPlayVideo))
-                        row("Portão parked", flag(FeatureFlags.parkedGate) + (FeatureFlags.parkedGate.isOn ? " · \(CarGate.shared.isMoving ? "movendo" : "parado")" : ""))
-                    }
-                    group("Rota de saída (AirPlay/áudio)") {
-                        row("Rotas", route)
-                        row("Rota remota (AirPlay/carro)", hasRemoteRouteNow ? "ativa" : "inativa")
-                    }
-                    group("Assinatura (verificável)") {
-                        ForEach(entitlements.keys.sorted(), id: \.self) { key in
-                            row(key, entitlements[key] == true ? "presente no perfil" : "?")
-                        }
-                        if entitlements.isEmpty {
-                            row("—", sourceText)
-                        }
-                    }
-                    group("Flags experimentais") {
-                        ForEach(FeatureFlags.all) { flag in
-                            Toggle(flag.title, isOn: Binding(
-                                get: { flag.isOn }, set: { flag.set($0) }))
-                        }
-                        Text("Flags desligam/ligam superfícies não validadas. Espelhamento só aparece na barra após ligar aqui e reiniciar o app.")
-                            .font(.footnote).foregroundStyle(.secondary)
-                    }
-                    group("Legenda honesta") {
-                        Text("✔ implementado = o código existe e roda. ⚿ autorizado = a Apple concedeu o entitlement ao time. ⚠ validado em hardware = testado com o Pulse conectado. Estas telas mostram o estado de cada um separadamente; o app NUNCA confunde os três.")
-                            .font(.footnote).foregroundStyle(.secondary)
-                    }
-                    group("Logs (\(log.count))") {
-                        ForEach(log.reversed().prefix(200)) { e in
-                            HStack(alignment: .top) {
-                                Text(e.date, style: .time).font(.caption2.monospaced)
-                                Text("[\(e.category.rawValue)]").font(.caption2).foregroundStyle(.secondary)
-                                Text(LogScrubber.scrub(e.message)).font(.caption2)
-                            }
-                        }
-                    }
+                    deviceGroup
+                    carplayGroup
+                    routeGroup
+                    signatureGroup
+                    flagsGroup
+                    legendGroup
+                    logGroup
                 }
                 .padding()
             }
@@ -80,6 +40,90 @@ struct DiagnosticsView: View {
         }
     }
 
+    // MARK: - Sections (small to keep the type-checker sane)
+
+    private var deviceGroup: some View {
+        group("Aparelho") {
+            VStack(spacing: 4) {
+                row("iOS", DeviceInfo.systemVersion)
+                row("Modelo", DeviceInfo.machineIdentifier)
+                row("App", DeviceInfo.appVersion)
+                row("Bundle", DeviceInfo.bundleID)
+            }
+        }
+    }
+
+    private var carplayGroup: some View {
+        group("CarPlay") {
+            VStack(spacing: 4) {
+                row("Cena do carro", CarPlayLink.shared.isConnected ? "conectada" : "não conectada")
+                row("Entitlement CarPlay", entitlementsSummary)
+                row("Flag vídeo", flag(FeatureFlags.carPlayVideo))
+                let gate = flag(FeatureFlags.parkedGate)
+                row("Portão parked", gate + (FeatureFlags.parkedGate.isOn ? " · \(CarGate.shared.isMoving ? "movendo" : "parado")" : ""))
+            }
+        }
+    }
+
+    private var routeGroup: some View {
+        group("Rota de saída (AirPlay/CarPlay/áudio)") {
+            VStack(spacing: 4) {
+                row("Rotas", route)
+                row("Rota remota (AirPlay/carro)", hasRemoteRouteNow ? "ativa" : "inativa")
+            }
+        }
+    }
+
+    private var signatureGroup: some View {
+        group("Assinatura (verificável)") {
+            VStack(spacing: 4) {
+                ForEach(entitlements.keys.sorted(), id: \.self) { key in
+                    row(key, entitlements[key] == true ? "presente no perfil" : "?")
+                }
+                if entitlements.isEmpty {
+                    row("—", sourceText)
+                }
+            }
+        }
+    }
+
+    private var flagsGroup: some View {
+        group("Flags experimentais") {
+            VStack(spacing: 4) {
+                ForEach(FeatureFlags.all) { f in
+                    Toggle(f.title, isOn: Binding(
+                        get: { f.isOn },
+                        set: { f.set($0) }))
+                }
+                Text("Flags desligam/ligam superfícies não validadas. Espelhamento só aparece na barra após ligar aqui e reiniciar o app.")
+                    .font(.footnote).foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private var legendGroup: some View {
+        group("Legenda honesta") {
+            Text("✔ implementado = o código existe e roda. ⚿ autorizado = a Apple concedeu o entitlement ao time. ⚠ validado em hardware = testado com o Pulse conectado. Estas telas mostram o estado de cada um separadamente; o app NUNCA confunde os três.")
+                .font(.footnote).foregroundStyle(.secondary)
+        }
+    }
+
+    private var logGroup: some View {
+        group("Logs (\(log.count))") {
+            VStack(alignment: .leading, spacing: 3) {
+                ForEach(log.reversed().prefix(200)) { e in
+                    HStack(alignment: .top) {
+                        Text(e.date, style: .time).font(.caption2.monospaced)
+                        Text("[\(e.category.rawValue)]").font(.caption2).foregroundStyle(.secondary)
+                        Text(LogScrubber.scrub(e.message)).font(.caption2)
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: - Helpers
+
     private var hasRemoteRouteNow: Bool {
         AVAudioSession.sharedInstance().currentRoute.outputs.contains {
             $0.portType == AVAudioSession.Port.airPlay || $0.portType.rawValue.hasPrefix("Car")
@@ -92,8 +136,8 @@ struct DiagnosticsView: View {
         entitlementSource = probe.source
         log = EventLog.shared.snapshot
         route = AVAudioSession.sharedInstance().currentRoute.outputs
-            .map { "\($0.portName) [\($0.portType)]" }.joined(separator: ", ")
-        if route.isEmpty { route = "recetor iPhone" }
+            .map { "\($0.portName) [\($0.portType.carMediaPortLabel)]" }.joined(separator: ", ")
+        if route.isEmpty { route = "alto-falante do iPhone" }
     }
 
     private var entitlementsSummary: String {
@@ -114,7 +158,7 @@ struct DiagnosticsView: View {
 
     private func flag(_ f: FeatureFlags.Flag) -> String { "\(f.name): \(f.isOn ? "ON" : "OFF")" }
 
-    private func group(_ title: String, @ViewBuilder _ content: () -> some View) -> some View {
+    private func group<Content: View>(_ title: String, @ViewBuilder _ content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title).font(.headline)
             content()
