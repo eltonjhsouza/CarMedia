@@ -25,7 +25,7 @@ public final class PlayerModel: NSObject, ObservableObject {
     @Published public private(set) var lastError: String?
     @Published public var title: String = ""
 
-    private let routePublisher: NSObjectProtocol
+    private var routePublisher: NSObjectProtocol?
     private var timeToken: Any?
 
     // Test sources (public, unencrypted).
@@ -33,21 +33,22 @@ public final class PlayerModel: NSObject, ObservableObject {
     public static let testHLS = "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_ts/master.m3u8"
 
     override public init() {
-        player = AVPlayer()
+        let player = AVPlayer()
         player.allowsExternalPlayback = true   // official property on AVPlayer
+        self.player = player
+        super.init()
         routePublisher = NotificationCenter.default.addObserver(
             forName: AVAudioSession.routeChangeNotification, object: nil, queue: .main
         ) { [weak self] note in
             Task { @MainActor in self?.handleRouteChange(note) }
         }
-        super.init()
         try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback)
         try? AVAudioSession.sharedInstance().setActive(true)
         updateRouteSummary()
     }
 
     deinit {
-        NotificationCenter.default.removeObserver(routePublisher)
+        if let routePublisher { NotificationCenter.default.removeObserver(routePublisher) }
     }
 
     // MARK: - Controls
