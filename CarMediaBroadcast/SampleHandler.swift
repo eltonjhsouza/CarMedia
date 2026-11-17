@@ -94,7 +94,7 @@ public final class SampleHandler: RPBroadcastSampleHandler {
             presentationTimeStamp: pts,
             duration: .invalid,
             frameProperties: nil,
-            sourceFrameRefCon: nil,
+            sourceFrameRefcon: nil,
             infoFlagsOut: nil
         )
     }
@@ -110,25 +110,25 @@ public final class SampleHandler: RPBroadcastSampleHandler {
             allocator: kCFAllocatorDefault,
             width: w, height: h,
             codecType: kCMVideoCodecType_H264,
-            encoderSpecification: [kVTVideoEncoderSpecification_EnableHardwareAcceleratedVideoEncoding: true] as CFDictionary,
+            encoderSpecification: ["VTVideoEncoderSpecification_EnableHardwareAcceleratedVideoEncoding": true] as CFDictionary,
             imageBufferAttributes: nil,
-            compressedVideoOutputAttributes: nil,
+            compressedDataAllocator: nil,
             outputCallback: SampleHandler.compressedOutput,
-            sourceFrameRefCon: nil,
+            refcon: nil,
             compressionSessionOut: &session
         )
         guard status == noErr, let session else {
             setStatus("error", "encoder indisponível (\(status))")
             return
         }
-        VTCompressionSessionSetProperty(session, key: kVTCompressionPropertyKey_AverageBitRate,
-                                        value: NSNumber(value: 2_000_000))
-        VTCompressionSessionSetProperty(session, key: kVTCompressionPropertyKey_MaxKeyframeInterval,
-                                        value: NSNumber(value: 2.0))
-        VTCompressionSessionSetProperty(session, key: kVTCompressionPropertyKey_AllowTemporalCompression,
-                                        value: kCFBooleanFalse)
-        VTCompressionSessionSetProperty(session, key: kVTCompressionPropertyKey_ExpectedFrameRate,
-                                        value: NSNumber(value: 30))
+        VTSessionSetProperty(session, kVTCompressionPropertyKey_AverageBitRate,
+                             NSNumber(value: 2_000_000) as CFTypeRef)
+        VTSessionSetProperty(session, kVTCompressionPropertyKey_MaxKeyFrameIntervalDuration,
+                             NSNumber(value: 2.0) as CFTypeRef)
+        VTSessionSetProperty(session, kVTCompressionPropertyKey_AllowTemporalCompression,
+                             kCFBooleanFalse)
+        VTSessionSetProperty(session, kVTCompressionPropertyKey_ExpectedFrameRate,
+                             NSNumber(value: 30) as CFTypeRef)
         encoder = session
         VTCompressionSessionPrepareToEncodeFrames(session)
     }
@@ -153,12 +153,10 @@ public final class SampleHandler: RPBroadcastSampleHandler {
             for i in 0...1 {
                 var ptr: UnsafePointer<UInt8>?
                 var len: CFIndex = 0
-                var complete: Int8 = 0
-                var nalLength: CFIndex = 0
                 let st = CMVideoFormatDescriptionGetH264ParameterSetAtIndex(
                     format, parameterSetIndex: i,
                     parameterSetPointerOut: &ptr, parameterSetSizeOut: &len,
-                    parameterSetCompleteOut: &complete, nalLengthSizeOut: &nalLength)
+                    parameterSetCountOut: nil, nalUnitHeaderLengthOut: nil)
                 if st == noErr, let ptr {
                     out.append(contentsOf: [0, 0, 0, 1])
                     out.append(contentsOf: UnsafeBufferPointer(start: ptr, count: len))
