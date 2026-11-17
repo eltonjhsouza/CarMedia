@@ -30,7 +30,7 @@ struct DiagnosticsView: View {
                     }
                     group("Rota de saída (AirPlay/áudio)") {
                         row("Rotas", route)
-                        row("External playback", PlayerUICoordinator.shared.controller?.player?.currentItem?.isExternalPlaybackActive == true ? "ativo" : "inativo")
+                        row("Rota remota (AirPlay/carro)", hasRemoteRouteNow ? "ativa" : "inativa")
                     }
                     group("Assinatura (verificável)") {
                         ForEach(entitlements.keys.sorted(), id: \.self) { key in
@@ -77,6 +77,12 @@ struct DiagnosticsView: View {
                 }
             }
             .onAppear { refresh() }
+        }
+    }
+
+    private var hasRemoteRouteNow: Bool {
+        AVAudioSession.sharedInstance().currentRoute.outputs.contains {
+            $0.portType == AVAudioSession.Port.airPlay || $0.portType.rawValue.hasPrefix("Car")
         }
     }
 

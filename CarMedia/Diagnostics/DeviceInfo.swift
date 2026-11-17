@@ -1,6 +1,7 @@
 // CarMedia — MIT © 2026 CarMedia contributors (see LICENSE).
 
 import Foundation
+import UIKit
 
 public enum DeviceInfo {
     /// "iPhone16,2" style identifier via uname(3) machine field.
