@@ -1,0 +1,46 @@
+# Free-install path: gera um IPA (sem assinatura) PRONTO para o Sideloadly
+# re-assinar com Apple ID gratuito e instalar no iPhone físico.
+# Sem Secrets, sem TestFlight, sem App Store.
+name: free-install-ipa
+
+on:
+  workflow_dispatch:
+
+jobs:
+  ipa:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate LITE project (no broadcast extension)
+        run: xcodegen generate --spec project.lite.yml
+
+      - name: Build device app (unsigned, release)
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project CarMedia.xcodeproj -scheme CarMediaLite -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Package unsigned IPA (for Sideloadly/AltStore re-signing)
+        run: |
+          mkdir -p Payload ipa
+          cp -R build/Build/Products/Release-iphoneos/CarMedia.app Payload/
+          cd Payload && find . -name "_CodeSignature" -maxdepth 3 -type d -exec rm -rf {} + 2>/dev/null || true; cd ..
+          zip -qry ipa/CarMedia-unsigned.ipa Payload
+          ls -l ipa
+
+      - name: Upload installable-input IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: CarMedia-unsigned.ipa
+          path: ipa/CarMedia-unsigned.ipa
+
+      - name: How to install (read me)
+        run: |
+          echo "::notice::Baixe o artefato CarMedia-unsigned.ipa e instale com Sideloadly (Windows) usando seu Apple ID gratuito. Requisitos no iPhone: cabo USB, confiar no PC, DEVELOPER MODE ligado (Ajustes > Privacidade e Segurança > Modo de Desenvolvedor). Válido 7 dias, máx. 3 apps. CarPlay/vídeo na central NÃO funcionam sem conta paga + entitlements da Apple (documentado em docs/SIGNING.md)."

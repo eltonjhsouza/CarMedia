@@ -18,10 +18,12 @@ struct RootView: View {
             CarPlayStatusView()
                 .tabItem { Label("CarPlay", systemImage: "car.fill") }
 
+            #if !CARMEDIA_LITE
             if FeatureFlags.mirroring.isOn {
                 MirroringView()
                     .tabItem { Label("Espelhamento", systemImage: "rectangle.on.rectangle") }
             }
+            #endif
 
             DiagnosticsView()
                 .tabItem { Label("Diagnósticos", systemImage: "stethoscope") }

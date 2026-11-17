@@ -1,12 +1,39 @@
 # Assinatura e instalação (do Windows, sem Mac)
 
+## Rota rápida: Apple ID GRÁTIS (sem conta developer, sem TestFlight, sem loja)
+
+É só isto que você precisa para rodar no SEU celular agora:
+
+1. **GitHub** → Actions → **`free-install-ipa`** → *Run workflow*. Ele gera o
+   artefato **`CarMedia-unsigned.ipa`** (build LITE: sem a extensão de
+   broadcast, que conta grátis costuma rejeitar).
+2. No Windows: instale o **Sideloadly** (sideloadly.io). Conecte o iPhone por
+   cabo e toque em *Confiar* no aparelho.
+3. Abra o Sideloadly: solte o `.ipa` baixado, informe seu **Apple ID** e a
+   **senha de app** (appleid.apple.com → Sign-In and Security → App-Specific
+   Passwords). Clique *Start*. Ele re-assina com seu time pessoal gratuito e
+   instala.
+4. No iPhone: **Ajustes → Privacidade e Segurança → Modo de Desenvolvedor →
+   Ativar** (o iPhone reinicia; confirme de novo ao ligar). Sem isso, nenhum
+   app fora da loja abre no iOS atual.
+5. Toque em CarMedia na tela de início. Pronto.
+
+Limitações honestas da rota grátis (não são bugs do app):
+- Reinstalar/renovar a cada **7 dias** (deixe o iPhone no mesmo Wi‑Fi do PC e
+  repita o passo 3). Máximo **3 apps** assinados assim.
+- **Sem App Groups** → o PoC de espelhamento não sincroniza com a extensão
+  (já desativado por padrão; no build lite a aba nem existe).
+- **CarPlay na central continua indisponível** — isso exige a conta paga E os
+  entitlements concedidos pela Apple. Nada muda esse fato.
+
 ## O que cada artefato do CI é
 
 | Artefato | Instala no iPhone? |
 |---|---|
-| `build-<sha>` do workflow `build-test` | **NÃO**. É compilação de simulador sem assinatura, só para validar código e testes. |
-| `unsigned-app` do `release-ipa` | **NÃO**. Build de dispositivo sem assinatura — útil para inspecionar, não instala. |
-| `CarMedia.ipa` do `release-ipa` | **SIM**, se assinado com perfil que cubra o bundle id e o dispositivo. |
+| `CarMedia-unsigned.ipa` (workflow `free-install-ipa`) | ✅ **depois** de re-assinado pelo Sideloadly com seu Apple ID |
+| `build-<sha>` do workflow `build-test` | ❌ build de simulador; nunca instala |
+| `unsigned-app` do `release-ipa` | ❌ .app sem empacotar — inspeção apenas |
+| `CarMedia.ipa` do `release-ipa` | ✅ instala direto (conta paga, perfil cobrindo o UDID) |
 
 ## Pré-requisitos Apple (pontos que exigem recursos externos)
 

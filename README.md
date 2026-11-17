@@ -49,13 +49,13 @@ project.yml          XcodeGen — o .xcodeproj É GERADO, nunca commitado
 
 ## Instalar no iPhone físico
 
-Dois caminhos, documentados em [docs/SIGNING.md](docs/SIGNING.md):
-
-- **Assinatura própria (recomendado para testar):** conta Apple Developer
-  ($99/ano), certificate + profile, workflow `release-ipa`, instalar IPA via
-  AltStore/Sideloadly/Foxo (funcionam do Windows) ou Xcode num Mac emprestado.
-- **Build sem assinatura:** serve só para verificação de código no CI.
-  **Não instala no iPhone.** Não confunda os dois artefatos.
+- **Sem conta paga (agora):** Actions → `free-install-ipa` → baixe o
+  `CarMedia-unsigned.ipa` → assine/instale com **Sideloadly** usando seu Apple
+  ID gratuito + Modo de Desenvolvedor no iPhone. Vale 7 dias, 3 apps.
+  CarPlay na central **não** funciona sem a rota paga — limitação da Apple.
+- **Com Apple Developer ($99/ano):** workflow `release-ipa` via Secrets,
+  documentado em [docs/SIGNING.md](docs/SIGNING.md).
+- **Build de simulador do `build-test`:** verificação de código; **não instala**.
 
 ## Testes no carro
 

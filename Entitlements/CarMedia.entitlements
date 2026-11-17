@@ -2,11 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- DEFAULT entitlements: no CarPlay. A clone with any (even free) Apple
-	     ID builds, signs and runs phone-only. -->
-	<key>com.apple.security.application-groups</key>
-	<array>
-		<string>group.dev.carmedia.app</string>
-	</array>
+	<!-- DEFAULT entitlements: NO CarPlay, NO App Groups. Free Apple IDs cannot
+	     hold app groups or CarPlay entitlements, so a personal-team signed
+	     build (Sideloadly/AltStore) works out of the box. The code already
+	     falls back to standard UserDefaults when the App Group is missing
+	     (SharedStore.swift), which only degrades the mirroring PoC — off by
+	     default anyway. Paid builds that want the App Group pick
+	     CarPlay.entitlements or add the group back. -->
 </dict>
 </plist>
